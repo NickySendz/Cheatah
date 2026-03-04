@@ -73,16 +73,16 @@ html,body{height:100%;overflow:hidden;background:var(--black);color:var(--white)
 .upload-btn:active{border-color:var(--yellow);color:var(--yellow);}
 
 /* ══ CAMERA ══ */
-#camera{background:#000;position:relative;}
-#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;-webkit-transform:translateZ(0);transform:translateZ(0);}
+#camera{background:#000;position:fixed;inset:0;width:100%;height:100%;}
+#video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1;-webkit-transform:translateZ(0);transform:translateZ(0);}
 #cam-canvas{display:none;}
 
-.cam-top{position:absolute;top:0;left:0;right:0;padding:calc(var(--st) + 12px) 20px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.65),transparent);z-index:10;}
-.cam-bot{position:absolute;bottom:0;left:0;right:0;padding:20px 40px calc(var(--sb) + 36px);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);z-index:10;}
+.cam-top{position:fixed;top:0;left:0;right:0;padding:calc(var(--st) + 12px) 20px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.65),transparent);z-index:11;}
+.cam-bot{position:fixed;bottom:0;left:0;right:0;padding:20px 40px calc(var(--sb) + 36px);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);z-index:11;}
 
 .circ{width:44px;height:44px;border-radius:22px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;backdrop-filter:blur(8px);}
 
-.frame-box{position:absolute;top:50%;left:50%;width:82vw;height:calc(82vw * 1.35);transform:translate(-50%,-55%);pointer-events:none;z-index:5;}
+.frame-box{position:fixed;top:50%;left:50%;width:82vw;height:calc(82vw * 1.35);transform:translate(-50%,-55%);pointer-events:none;z-index:10;}
 .fc{position:absolute;width:26px;height:26px;border-color:var(--yellow);border-style:solid;border-width:0;}
 .fc.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:3px 0 0 0;}
 .fc.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 3px 0 0;}
@@ -96,7 +96,7 @@ html,body{height:100%;overflow:hidden;background:var(--black);color:var(--white)
 
 .mode-pill{background:rgba(0,0,0,.5);border:1px solid rgba(245,210,71,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#f5d247;}
 
-#solving{position:absolute;inset:0;background:rgba(8,8,8,.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:20;backdrop-filter:blur(6px);}
+#solving{position:fixed;inset:0;background:rgba(8,8,8,.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:22;backdrop-filter:blur(6px);}
 #solving.show{display:flex;}
 .solve-cheetah{font-size:52px;animation:bob .6s ease-in-out infinite alternate;}
 @keyframes bob{from{transform:scale(1)}to{transform:scale(1.15)}}
@@ -312,25 +312,25 @@ async function openCamera(){
 async function startStream(){
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
   try{
-    // Safari-safe constraints — avoid high res which blocks on iPhone
-    const constraints={
-      video:{
-        facingMode:{ideal:facing},
-        width:{ideal:1280},
-        height:{ideal:720}
-      },
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},
       audio:false
-    };
-    stream=await navigator.mediaDevices.getUserMedia(constraints);
+    });
     const video=document.getElementById('video');
+    video.srcObject=stream;
     video.setAttribute('autoplay','');
     video.setAttribute('playsinline','');
-    video.setAttribute('muted','');
-    video.srcObject=stream;
-    // Safari requires explicit play() call
-    try{await video.play();}catch(pe){console.log('play err',pe);}
+    video.setAttribute('webkit-playsinline','');
+    video.muted=true;
+    // Small delay so Safari registers the srcObject before play()
+    await new Promise(r=>setTimeout(r,100));
+    try{await video.play();}catch(pe){console.warn('play:',pe);}
   }catch(e){
-    toast('Camera error: '+e.message);
+    if(e.name==='NotAllowedError'){
+      toast('⚠ Camera permission denied. Check Settings > Safari > Camera');
+    } else {
+      toast('Camera error: '+e.message);
+    }
     show('home');
   }
 }
