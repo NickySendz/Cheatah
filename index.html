@@ -55,6 +55,17 @@ html,body{height:100%;overflow:hidden;background:var(--black);color:var(--white)
 .keytog{background:var(--mid);border:none;border-radius:7px;padding:9px 11px;color:var(--muted);font-size:15px;cursor:pointer;}
 .keyhint{font-size:11px;color:#2a2a2a;margin-bottom:26px;align-self:flex-start;}
 
+.airow{display:flex;gap:8px;width:100%;margin-bottom:18px;}
+.aibtn{flex:1;border:1.5px solid var(--mid);border-radius:10px;padding:10px 6px;background:transparent;cursor:pointer;text-align:center;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.aibtn.on{border-color:var(--yellow);background:var(--ydim);}
+.aibtn-icon{font-size:20px;}
+.aibtn-name{font-size:11px;font-weight:700;color:var(--muted);}
+.aibtn.on .aibtn-name{color:var(--yellow);}
+.aibtn-free{font-size:9px;color:#3a3a3a;border:1px solid #2a2a2a;border-radius:8px;padding:1px 5px;}
+.aibtn.on .aibtn-free{color:#6e6030;border-color:#4a4020;}
+.getkey-link{font-size:11px;color:#444;margin-bottom:22px;align-self:flex-start;text-decoration:underline;cursor:pointer;}
+.getkey-link:active{color:var(--yellow);}
+
 .scanbtn{width:100%;background:var(--yellow);border:none;border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:20px;font-weight:900;color:var(--black);letter-spacing:.1em;cursor:pointer;transition:all .15s;margin-bottom:10px;}
 .scanbtn:active{transform:scale(.97);background:#fce050;}
 .scanbtn:disabled{opacity:.3;pointer-events:none;}
@@ -159,12 +170,6 @@ html,body{height:100%;overflow:hidden;background:var(--black);color:var(--white)
   <p class="slabel">Subject</p>
   <div class="chips" id="chips"></div>
 
-  <p class="slabel">Anthropic API Key</p>
-  <div class="keybox">
-    <input class="keyinput" id="apikey" type="password" placeholder="sk-ant-..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/>
-    <button class="keytog" id="keytog" onclick="toggleKey()">👁</button>
-  </div>
-  <p class="keyhint">Saved on your device only — never sent anywhere except Anthropic.</p>
 
   <button class="scanbtn" id="scanbtn" onclick="openCamera()">
     <span>📷</span><span>SCAN TEST</span>
@@ -277,9 +282,7 @@ const PROMPTS = {
     };
     wrap.appendChild(b);
   });
-  const saved = localStorage.getItem('ck');
-  if (saved) document.getElementById('apikey').value = saved;
-  document.getElementById('apikey').addEventListener('input', e => localStorage.setItem('ck', e.target.value.trim()));
+
 })();
 
 // ── UI HELPERS ─────────────────────────────────────────────────────
@@ -293,11 +296,7 @@ function toast(msg,dur=2600){
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function toggleKey(){
-  const i=document.getElementById('apikey'),b=document.getElementById('keytog');
-  i.type=i.type==='password'?'text':'password';
-  b.textContent=i.type==='password'?'👁':'🙈';
-}
+
 function setMode(m){
   mode=m;
   document.getElementById('btn-test').classList.toggle('on',m==='test');
@@ -307,8 +306,6 @@ function setMode(m){
 
 // ── CAMERA ─────────────────────────────────────────────────────────
 async function openCamera(){
-  const key=document.getElementById('apikey').value.trim();
-  if(!key){toast('⚠ Enter your Anthropic API key first');return;}
   show('camera');
   await startStream();
 }
@@ -354,8 +351,6 @@ async function capture(){
 }
 function handleUpload(e){
   const file=e.target.files[0]; if(!file)return;
-  const key=document.getElementById('apikey').value.trim();
-  if(!key){toast('⚠ Enter your API key first');return;}
   const reader=new FileReader();
   reader.onload=async ev=>{imgDataUrl=ev.target.result;show('camera');await solve(imgDataUrl);};
   reader.readAsDataURL(file);
@@ -366,7 +361,6 @@ async function solve(dataUrl){
   document.getElementById('solving').classList.add('show');
   document.getElementById('shutter').disabled=true;
 
-  const key=document.getElementById('apikey').value.trim();
   const modeNote=mode==='study'
     ?'For each question provide the answer, a full step-by-step explanation, and confidence %.'
     :'For each question give ONLY the direct answer — no explanation. Include confidence %.';
@@ -382,27 +376,19 @@ Repeat for every question visible. ${modeNote}`;
   try{
     const base64=dataUrl.split(',')[1];
     const mtype=dataUrl.split(';')[0].split(':')[1];
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/solve',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true',
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        system,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:mtype,data:base64}},
-          {type:'text',text:'Identify and answer every question on this test paper.'}
-        ]}]
+        imageBase64:base64,
+        mimeType:mtype,
+        subject,
+        mode
       })
     });
     const data=await res.json();
-    if(data.error)throw new Error(data.error.message);
-    const text=(data.content||[]).map(b=>b.text||'').join('\n');
+    if(data.error)throw new Error(data.error);
+    const text=data.text||'';
     answers=parseAnswers(text);
     if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
     renderResults();
