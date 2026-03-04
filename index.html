@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheatah 🐆</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #090909;
+      --white: #f2efe8;
+      --yellow: #f5d247;
+      --yellow-dim: rgba(245,210,71,0.10);
+      --grey: #1a1a1a;
+      --mid: #2e2e2e;
+      --muted: #666;
+      --red: #e05a3a;
+      --green: #4caf7d;
+      --radius: 6px;
+    }
+
+    html, body {
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* noise */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: 0.5;
+    }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      padding: 18px 28px;
+      border-bottom: 1px solid #161616;
+      position: sticky; top: 0;
+      background: rgba(9,9,9,0.93);
+      backdrop-filter: blur(14px);
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; letter-spacing: 0.06em; color: var(--yellow);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-pills {
+      display: flex; gap: 3px;
+      background: var(--grey); border-radius: 20px; padding: 4px;
+    }
+    .pill {
+      padding: 6px 16px; border-radius: 16px; border: none;
+      background: transparent; color: var(--muted);
+      font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .pill.active { background: var(--yellow); color: var(--black); }
+    .pill:hover:not(.active) { color: var(--white); }
+
+    .mode-badge {
+      font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .mode-test  { background: rgba(224,90,58,0.15);  color: var(--red); }
+    .mode-study { background: rgba(76,175,125,0.15); color: var(--green); }
+
+    /* MAIN */
+    main { flex: 1; padding: 40px 28px 100px; max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 80px 20px; animation: fadeUp 0.5s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-eyebrow { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--yellow); margin-bottom: 14px; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 14vw, 140px); line-height: 0.9; color: var(--white); margin-bottom: 20px; }
+    .hero-title span { color: var(--yellow); }
+    .hero-sub { font-size: 15px; color: var(--muted); max-width: 380px; margin: 0 auto 48px; line-height: 1.7; }
+
+    /* DROP ZONE */
+    .dropzone {
+      border: 1.5px dashed #2a2a2a; border-radius: var(--radius);
+      padding: 60px 40px; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      background: rgba(255,255,255,0.01); max-width: 540px; margin: 0 auto; text-align: center;
+    }
+    .dropzone:hover, .dropzone.drag { border-color: var(--yellow); background: var(--yellow-dim); }
+    .drop-icon { font-size: 44px; margin-bottom: 14px; display: block; }
+    .drop-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .drop-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* WORKSPACE */
+    .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; animation: fadeUp 0.4s ease both; }
+    @media (max-width: 680px) { .workspace { grid-template-columns: 1fr; } }
+
+    /* PANEL */
+    .panel { background: var(--grey); border: 1px solid #222; border-radius: var(--radius); overflow: hidden; }
+    .panel-header {
+      padding: 11px 16px; border-bottom: 1px solid #222;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+    .panel-actions { display: flex; gap: 6px; }
+
+    .icon-btn {
+      background: #252525; border: 1px solid #333; border-radius: 4px; color: var(--muted);
+      padding: 5px 10px; font-size: 11px; cursor: pointer;
+      font-family: 'Instrument Sans', sans-serif; transition: all 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+
+    /* IMAGE */
+    .img-wrap { position: relative; background: #111; min-height: 320px; display: flex; align-items: center; justify-content: center; }
+    #scan-img { width: 100%; display: block; object-fit: contain; max-height: 500px; }
+
+    /* OVERLAY PINS */
+    .answer-pin {
+      position: absolute; background: rgba(245,210,71,0.92); color: #090909;
+      font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px;
+      max-width: 190px; white-space: normal; line-height: 1.35;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5); transform: translateY(-50%);
+      font-family: 'Instrument Sans', sans-serif;
+    }
+
+    /* SOLVING OVERLAY */
+    .solving-overlay {
+      position: absolute; inset: 0; background: rgba(9,9,9,0.78);
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      backdrop-filter: blur(4px);
+    }
+    .solving-overlay.show { display: flex; }
+    .cheetah-spin { font-size: 38px; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .solving-text { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.15em; color: var(--yellow); }
+
+    /* ANSWERS */
+    .answers-scroll { padding: 14px; max-height: 540px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .answers-scroll::-webkit-scrollbar { width: 4px; }
+    .answers-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .answers-empty { padding: 48px 20px; text-align: center; color: var(--muted); }
+    .answers-empty .big { font-size: 34px; margin-bottom: 12px; }
+    .answers-empty p { font-size: 12px; line-height: 1.7; }
+
+    .qa-card {
+      background: #111; border: 1px solid #222; border-radius: 4px; padding: 14px;
+      transition: border-color 0.15s; animation: fadeUp 0.3s ease both;
+    }
+    .qa-card:hover { border-color: #333; }
+    .qa-q { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-style: italic; line-height: 1.5; }
+    .qa-a { font-size: 13px; color: var(--white); line-height: 1.65; }
+    .qa-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .qa-num { font-size: 10px; color: #444; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; }
+
+    .confidence { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 10px; }
+    .conf-high { background: rgba(76,175,125,0.15); color: var(--green); }
+    .conf-mid  { background: rgba(245,210,71,0.12);  color: var(--yellow); }
+    .conf-low  { background: rgba(224,90,58,0.12);   color: var(--red); }
+
+    .error-msg { color: var(--red); font-size: 13px; padding: 16px; line-height: 1.6; }
+
+    /* BOTTOM BAR */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(9,9,9,0.95); backdrop-filter: blur(16px);
+      border-top: 1px solid #1a1a1a;
+      padding: 13px 28px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      z-index: 100;
+    }
+    .bar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .subject-select {
+      background: var(--grey); border: 1px solid #2a2a2a; border-radius: 4px;
+      color: var(--white); padding: 8px 12px;
+      font-family: 'Instrument Sans', sans-serif; font-size: 12px; outline: none; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .subject-select:focus { border-color: var(--yellow); }
+
+    .overlay-toggle { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); cursor: pointer; user-select: none; }
+    .toggle-track { width: 32px; height: 18px; border-radius: 9px; background: #2a2a2a; position: relative; transition: background 0.2s; }
+    .toggle-track.on { background: var(--yellow); }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: #666; transition: transform 0.2s, background 0.2s; }
+    .toggle-track.on .toggle-thumb { transform: translateX(14px); background: var(--black); }
+
+    .bar-right { display: flex; gap: 8px; }
+
+    .solve-btn {
+      background: var(--yellow); color: var(--black); border: none; border-radius: 4px;
+      padding: 10px 26px; font-family: 'Bebas Neue', sans-serif; font-size: 17px;
+      letter-spacing: 0.12em; cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .solve-btn:hover:not(:disabled) { background: #fce050; }
+    .solve-btn:active:not(:disabled) { transform: scale(0.97); }
+    .solve-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .export-btn {
+      background: transparent; border: 1px solid #2a2a2a; border-radius: 4px;
+      color: var(--muted); padding: 10px 16px;
+      font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em;
+    }
+    .export-btn:hover:not(:disabled) { border-color: var(--yellow); color: var(--yellow); }
+    .export-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+      background: var(--grey); border: 1px solid var(--yellow); border-radius: 4px;
+      padding: 9px 20px; font-size: 13px; color: var(--yellow);
+      z-index: 200; display: none; animation: fadeUp 0.2s ease;
+    }
+    .toast.show { display: block; }
+
+    /* API KEY BANNER */
+    .key-banner {
+      background: rgba(245,210,71,0.07); border: 1px solid rgba(245,210,71,0.2);
+      border-radius: var(--radius); padding: 14px 18px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .key-label { font-size: 12px; color: var(--yellow); font-weight: 600; white-space: nowrap; }
+    .key-input {
+      flex: 1; min-width: 200px; background: #111; border: 1px solid #333; border-radius: 4px;
+      color: var(--white); padding: 7px 12px; font-family: 'Instrument Sans', sans-serif; font-size: 12px;
+      outline: none; transition: border-color 0.15s;
+    }
+    .key-input:focus { border-color: var(--yellow); }
+    .key-hint { font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🐆 CHEATAH</div>
+  <div class="nav-pills">
+    <button class="pill active" id="btn-test"  onclick="setMode('test')">Test Mode</button>
+    <button class="pill"        id="btn-study" onclick="setMode('study')">Study Mode</button>
+  </div>
+  <span class="mode-badge mode-test" id="mode-badge">⚡ Fast answers</span>
+</nav>
+
+<main id="main">
+  <!-- API KEY BANNER -->
+  <div class="key-banner">
+    <span class="key-label">🔑 API Key</span>
+    <input class="key-input" type="password" id="api-key" placeholder="sk-ant-..." />
+    <span class="key-hint">Your key stays in your browser — never sent anywhere except Anthropic.</span>
+  </div>
+
+  <!-- HERO / DROP ZONE -->
+  <div class="hero" id="hero">
+    <div class="hero-eyebrow">// AI-Powered Exam Solver</div>
+    <h1 class="hero-title">CHEAT<span>AH</span></h1>
+    <p class="hero-sub">Scan any test. Get every answer — instantly.</p>
+
+    <div class="dropzone" id="dropzone"
+         onclick="document.getElementById('file-input').click()"
+         ondragover="onDragOver(event)"
+         ondragleave="onDragLeave()"
+         ondrop="onDrop(event)">
+      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="onFileChange(event)" />
+      <span class="drop-icon">📄</span>
+      <div class="drop-title">Drop your test here</div>
+      <div class="drop-sub">or click to browse · PNG, JPG, WEBP</div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE (hidden until image loaded) -->
+  <div class="workspace" id="workspace" style="display:none">
+
+    <!-- IMAGE PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Scanned Test</span>
+        <div class="panel-actions">
+          <button class="icon-btn" onclick="clearImage()">✕ Clear</button>
+          <button class="icon-btn" onclick="document.getElementById('file-input2').click()">↑ Replace</button>
+          <input type="file" id="file-input2" accept="image/*" style="display:none" onchange="onFileChange(event)" />
+        </div>
+      </div>
+      <div class="img-wrap" id="img-wrap">
+        <img id="scan-img" src="" alt="test" />
+        <div id="overlay-container"></div>
+        <div class="solving-overlay" id="solving-overlay">
+          <span class="cheetah-spin">🐆</span>
+          <span class="solving-text">SOLVING…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANSWERS PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title" id="answers-title">Answers</span>
+        <div class="panel-actions">
+          <button class="icon-btn" id="copy-btn" style="display:none" onclick="copyAll()">⎘ Copy all</button>
+        </div>
+      </div>
+      <div class="answers-scroll" id="answers-scroll">
+        <div class="answers-empty">
+          <div class="big">🐆</div>
+          <p>Hit <strong>Solve</strong> and Cheatah<br>will answer every question.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bar-left">
+    <select class="subject-select" id="subject-select">
+      <option value="general">General</option>
+      <option value="math">Math / Calculus</option>
+      <option value="bio">AP Biology</option>
+      <option value="chem">Chemistry</option>
+      <option value="history">History</option>
+      <option value="english">English / Lit</option>
+      <option value="physics">Physics</option>
+      <option value="sat">SAT / ACT Prep</option>
+    </select>
+    <label class="overlay-toggle" id="overlay-label" style="display:none">
+      <div class="toggle-track on" id="toggle-track" onclick="toggleOverlay()">
+        <div class="toggle-thumb"></div>
+      </div>
+      Overlay
+    </label>
+  </div>
+  <div class="bar-right">
+    <button class="export-btn" id="export-btn" disabled onclick="exportAnswers()">⬇ Export</button>
+    <button class="solve-btn"  id="solve-btn"  disabled onclick="solve()">🐆 SOLVE</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── STATE ── */
+  let mode        = 'test';
+  let showOverlay = true;
+  let imageData   = null; // { dataUrl, type }
+  let answers     = [];
+
+  const SUBJECT_PROMPTS = {
+    general: '',
+    math:    'Answer like a perfect math/calculus student. Show concise steps.',
+    bio:     'Answer like a perfect AP Biology student. Use precise scientific terminology.',
+    chem:    'Answer like a perfect chemistry student. Show formulas and balance equations.',
+    history: 'Answer like a perfect history student. Reference key dates, people, causes.',
+    english: 'Answer like a perfect English/Literature student. Quote text evidence where relevant.',
+    physics: 'Answer like a perfect physics student. Show formulas, units, and numeric steps.',
+    sat:     'Answer in SAT/ACT format. For multiple choice, state the letter and a one-line reason.',
+  };
+
+  /* ── MODE ── */
+  function setMode(m) {
+    mode = m;
+    document.getElementById('btn-test').classList.toggle('active',  m === 'test');
+    document.getElementById('btn-study').classList.toggle('active', m === 'study');
+    const badge = document.getElementById('mode-badge');
+    badge.className = 'mode-badge ' + (m === 'test' ? 'mode-test' : 'mode-study');
+    badge.textContent = m === 'test' ? '⚡ Fast answers' : '📚 Full explanations';
+  }
+
+  /* ── IMAGE LOAD ── */
+  function onFileChange(e) { loadImage(e.target.files[0]); }
+  function onDragOver(e)   { e.preventDefault(); document.getElementById('dropzone').classList.add('drag'); }
+  function onDragLeave()   { document.getElementById('dropzone').classList.remove('drag'); }
+  function onDrop(e)       { e.preventDefault(); onDragLeave(); loadImage(e.dataTransfer.files[0]); }
+
+  function loadImage(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      imageData = { dataUrl: e.target.result, type: file.type };
+      document.getElementById('scan-img').src = e.target.result;
+      document.getElementById('hero').style.display      = 'none';
+      document.getElementById('workspace').style.display = 'grid';
+      document.getElementById('solve-btn').disabled      = false;
+      document.getElementById('overlay-label').style.display = 'flex';
+      answers = [];
+      renderAnswers();
+      clearPins();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearImage() {
+    imageData = null; answers = [];
+    document.getElementById('hero').style.display      = 'block';
+    document.getElementById('workspace').style.display = 'none';
+    document.getElementById('solve-btn').disabled      = true;
+    document.getElementById('export-btn').disabled     = true;
+    document.getElementById('overlay-label').style.display = 'none';
+    renderAnswers(); clearPins();
+  }
+
+  /* ── SOLVE ── */
+  async function solve() {
+    const apiKey = document.getElementById('api-key').value.trim();
+    if (!apiKey) { showToast('⚠ Paste your Anthropic API key first'); return; }
+    if (!imageData) return;
+
+    setLoading(true);
+    answers = [];
+    renderAnswers();
+    clearPins();
+
+    const subject     = document.getElementById('subject-select').value;
+    const subjectHint = SUBJECT_PROMPTS[subject] || '';
+    const modeNote    = mode === 'study'
+      ? 'For each question provide the answer, a step-by-step explanation, and a confidence %.'
+      : 'For each question provide ONLY the direct answer — no explanations. Include confidence %.';
+
+    const systemPrompt = `You are Cheatah, an AI that analyzes test/exam images and answers every question.
+${subjectHint}
+Format your response strictly as:
+Q1. [question text]
+Answer: [answer]
+Confidence: [0-100]%
+
+Q2. [question text]
+Answer: [answer]
+Confidence: [0-100]%
+
+...for every question visible. ${modeNote}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: imageData.type, data: imageData.dataUrl.split(',')[1] } },
+              { type: 'text', text: 'Identify and answer every question on this test/exam paper.' }
+            ]
+          }]
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = (data.content || []).map(b => b.text || '').join('\n');
+      answers = parseAnswers(text);
+      renderAnswers();
+      if (showOverlay) renderPins();
+      document.getElementById('export-btn').disabled = false;
+    } catch(err) {
+      document.getElementById('answers-scroll').innerHTML =
+        `<div class="error-msg">⚠ ${err.message}</div>`;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ── PARSE ── */
+  function parseAnswers(text) {
+    const lines = text.split('\n').filter(l => l.trim());
+    const results = []; let current = null;
+    for (const line of lines) {
+      const qMatch = line.match(/^(?:Q(?:uestion)?\s*(\d+)[.:]|(\d+)[.)]\s)/i);
+      if (qMatch) {
+        if (current) results.push(current);
+        current = { num: parseInt(qMatch[1]||qMatch[2]), question: line.replace(/^(?:Q(?:uestion)?\s*\d+[.:]|\d+[.)]\s)/i,'').trim(), answer: '', confidence: null };
+      } else if (line.match(/^(?:Answer|A)[.:)]/i) && current) {
+        current.answer = line.replace(/^(?:Answer|A)[.:)]\s*/i,'').trim();
+      } else if (line.match(/confidence[:\s]+(\d+)%/i) && current) {
+        current.confidence = parseInt(line.match(/(\d+)%/)[1]);
+      } else if (current) {
+        if (!current.answer) current.answer = line.trim();
+        else current.answer += ' ' + line.trim();
+      }
+    }
+    if (current) results.push(current);
+    return results.length ? results : [{ num: 1, question: '', answer: text, confidence: null }];
+  }
+
+  /* ── RENDER ANSWERS ── */
+  function renderAnswers() {
+    const el = document.getElementById('answers-scroll');
+    const titleEl = document.getElementById('answers-title');
+    const copyBtn = document.getElementById('copy-btn');
+
+    if (!answers.length) {
+      el.innerHTML = `<div class="answers-empty"><div class="big">🐆</div><p>Hit <strong>Solve</strong> and Cheatah<br>will answer every question.</p></div>`;
+      titleEl.textContent = 'Answers';
+      copyBtn.style.display = 'none';
+      return;
+    }
+
+    titleEl.textContent = `Answers (${answers.length})`;
+    copyBtn.style.display = 'block';
+
+    el.innerHTML = answers.map((a, i) => {
+      let confBadge = '';
+      if (a.confidence !== null) {
+        const cls = a.confidence >= 80 ? 'conf-high' : a.confidence >= 60 ? 'conf-mid' : 'conf-low';
+        confBadge = `<span class="confidence ${cls}">${a.confidence}% sure</span>`;
+      }
+      return `
+        <div class="qa-card" style="animation-delay:${i*0.05}s">
+          ${a.question ? `<div class="qa-q">Q${a.num}. ${escHtml(a.question)}</div>` : ''}
+          <div class="qa-a">${escHtml(a.answer)}</div>
+          <div class="qa-meta">
+            <span class="qa-num">#${a.num}</span>
+            ${confBadge}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── OVERLAY PINS ── */
+  function renderPins() {
+    clearPins();
+    const container = document.getElementById('overlay-container');
+    answers.forEach((a, i) => {
+      const pin = document.createElement('div');
+      pin.className = 'answer-pin';
+      pin.style.top  = `${8 + (i / answers.length) * 80}%`;
+      pin.style.left = '3%';
+      pin.textContent = `Q${a.num}: ${a.answer.slice(0,55)}${a.answer.length>55?'…':''}`;
+      container.appendChild(pin);
+    });
+  }
+
+  function clearPins() {
+    document.getElementById('overlay-container').innerHTML = '';
+  }
+
+  function toggleOverlay() {
+    showOverlay = !showOverlay;
+    document.getElementById('toggle-track').classList.toggle('on', showOverlay);
+    if (showOverlay && answers.length) renderPins();
+    else clearPins();
+  }
+
+  /* ── EXPORT ── */
+  function exportAnswers() {
+    const subject = document.getElementById('subject-select').value;
+    const blob = new Blob([JSON.stringify({ subject, mode, answers }, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `cheatah-${Date.now()}.json`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Exported!');
+  }
+
+  /* ── COPY ALL ── */
+  function copyAll() {
+    const text = answers.map(a => `Q${a.num}: ${a.question}\nA: ${a.answer}`).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  }
+
+  /* ── HELPERS ── */
+  function setLoading(on) {
+    document.getElementById('solving-overlay').classList.toggle('show', on);
+    document.getElementById('solve-btn').disabled = on;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
