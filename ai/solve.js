@@ -1,4 +1,3 @@
-// Tell Vercel to allow larger request bodies (images can be 4-6MB as base64)
 export const config = {
   api: {
     bodyParser: {
@@ -12,10 +11,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { imageBase64, mimeType, subject, mode } = req.body;
+  const { imageBase64, mimeType, subject, mode } = req.body || {};
+
+  // Log what we received for debugging
+  console.log('solve called:', {
+    hasImage: !!imageBase64,
+    imageLen: imageBase64?.length,
+    mimeType,
+    subject,
+    mode,
+    hasKey: !!process.env.OPENAI_API_KEY,
+    keyPrefix: process.env.OPENAI_API_KEY?.slice(0,8),
+  });
 
   if (!imageBase64 || !mimeType) {
-    return res.status(400).json({ error: 'Missing image data' });
+    return res.status(400).json({ error: 'Missing image data. imageBase64: ' + !!imageBase64 + ', mimeType: ' + !!mimeType });
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({ error: 'OPENAI_API_KEY not set in Vercel environment variables' });
   }
 
   const PROMPTS = {
@@ -30,15 +44,15 @@ export default async function handler(req, res) {
   };
 
   const modeNote = mode === 'study'
-    ? 'For each question provide the correct answer choice, a full explanation of why it is correct, and your confidence %.'
-    : 'For each question state the correct answer choice letter/text only. Include confidence %.';
+    ? 'For each question provide the correct answer, a full explanation, and confidence %.'
+    : 'For each question state the correct answer only. Include confidence %.';
 
   const system = `You are Cheatah, an AI that reads test and quiz images and answers every question.
 ${PROMPTS[subject] || ''}
 
-IMPORTANT: Many tests are multiple choice. If you see lettered or radio button options (A/B/C/D or a/b/c/d), identify the correct one.
+IMPORTANT: Many tests are multiple choice. If you see lettered or radio button options (A/B/C/D), identify the correct one.
 
-You MUST format your response EXACTLY like this for every question — no deviations:
+Format EXACTLY like this for every question:
 
 Q1. [full question text]
 Answer: [the correct answer]
@@ -48,9 +62,11 @@ Q2. [full question text]
 Answer: [the correct answer]
 Confidence: [0-100]%
 
-Repeat this format for EVERY question visible in the image. ${modeNote}`;
+${modeNote}`;
 
   try {
+    console.log('Calling OpenAI API...');
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -66,23 +82,30 @@ Repeat this format for EVERY question visible in the image. ${modeNote}`;
             role: 'user',
             content: [
               { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}`, detail: 'high' } },
-              { type: 'text', text: 'Read this test image carefully and answer every question you can see using the exact format specified.' }
+              { type: 'text', text: 'Read this test image carefully and answer every question using the exact format specified.' }
             ]
           }
         ]
       })
     });
 
+    console.log('OpenAI status:', response.status);
+
     const data = await response.json();
+    console.log('OpenAI response keys:', Object.keys(data));
 
     if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+      console.error('OpenAI error:', data.error);
+      return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
     }
 
     const text = data.choices?.[0]?.message?.content || '';
+    console.log('Got text, length:', text.length);
+
     return res.status(200).json({ text });
 
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Something went wrong' });
+    console.error('Caught error:', err);
+    return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 }
