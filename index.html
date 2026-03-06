@@ -509,14 +509,23 @@ Repeat for every question visible. ${modeNote}`;
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({imageBase64:base64,mimeType:mtype,subject,mode})
     });
+    // Show raw HTTP status for debugging
+    if(!res.ok){
+      const errText = await res.text();
+      console.error('HTTP '+res.status, errText);
+      throw new Error('HTTP '+res.status+': '+errText.slice(0,120));
+    }
     const data=await res.json();
-    if(data.error)throw new Error(data.error);
+    console.log('API response:', JSON.stringify(data).slice(0,300));
+    if(data.error)throw new Error(JSON.stringify(data.error));
+    if(!data.text)throw new Error('No text returned. Full response: '+JSON.stringify(data).slice(0,200));
     answers=parseAnswers(data.text||'');
     renderDrawer();
     document.getElementById('drawer').classList.add('open');
     setStatus(`${answers.length} answers found`,false);
   }catch(e){
-    toast('⚠ '+(e.message||'Something went wrong'));
+    console.error('Solve error:', e);
+    toast('⚠ '+e.message, 6000);
     setStatus('Error — tap to retry',false);
   }finally{
     solving=false;
