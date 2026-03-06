@@ -444,11 +444,21 @@ async function captureNow(){
   const fl=document.getElementById('cap-flash');
   fl.classList.add('show');setTimeout(()=>fl.classList.remove('show'),180);
 
-  const c=document.getElementById('cam-canvas');
-  c.width=v.videoWidth;c.height=v.videoHeight;
-  c.getContext('2d').drawImage(v,0,0);
-  const dataUrl=c.toDataURL('image/jpeg',0.88);
+  const dataUrl = await compressImage(v, 1280, 0.80);
   await solve(dataUrl);
+}
+
+// Compress any image source to max width and jpeg quality
+function compressImage(source, maxW, quality){
+  return new Promise(resolve=>{
+    const c=document.getElementById('cam-canvas');
+    let w = source.videoWidth || source.naturalWidth || source.width || 1280;
+    let h = source.videoHeight || source.naturalHeight || source.height || 720;
+    if(w > maxW){ h = Math.round(h * maxW / w); w = maxW; }
+    c.width=w; c.height=h;
+    c.getContext('2d').drawImage(source,0,0,w,h);
+    resolve(c.toDataURL('image/jpeg', quality));
+  });
 }
 
 function handleUpload(e){
@@ -456,9 +466,14 @@ function handleUpload(e){
   const reader=new FileReader();
   reader.onload=async ev=>{
     show('live');
-    // give the live screen a moment to show
     await new Promise(r=>setTimeout(r,100));
-    await solve(ev.target.result);
+    // compress uploaded image too
+    const img=new Image();
+    img.onload=async()=>{
+      const dataUrl=await compressImage(img,1280,0.80);
+      await solve(dataUrl);
+    };
+    img.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 }
