@@ -11,452 +11,574 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
-  --black:#080808;--white:#f0ede6;--yellow:#f5d247;--ydim:rgba(245,210,71,.1);
+  --black:#080808;--white:#f0ede6;--yellow:#f5d247;--ydim:rgba(245,210,71,.12);
   --grey:#161616;--mid:#252525;--muted:#555;--red:#e0533a;--green:#4caf7d;
   --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
 }
 html,body{height:100%;overflow:hidden;background:var(--black);color:var(--white);
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  font-size:15px;-webkit-font-smoothing:antialiased;}
-.screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--black);overflow:hidden;}
+  -webkit-font-smoothing:antialiased;}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--black);}
 .screen.active{display:flex;}
 
-/* HOME */
-#home{padding-top:calc(var(--st) + 12px);overflow-y:auto;background:radial-gradient(ellipse 90% 40% at 70% 0%,rgba(245,210,71,.06),transparent 60%),var(--black);}
-.home-inner{padding:0 22px 40px;display:flex;flex-direction:column;align-items:center;}
-.logo{font-size:76px;font-weight:900;color:var(--white);line-height:1;text-align:center;margin:16px 0 4px;letter-spacing:-2px;}
+/* ══════════ HOME ══════════ */
+#home{
+  overflow-y:auto;
+  padding-top:calc(var(--st) + 14px);
+  background:radial-gradient(ellipse 80% 40% at 65% 0%,rgba(245,210,71,.07),transparent 55%),var(--black);
+}
+.home-inner{padding:0 24px calc(var(--sb) + 36px);display:flex;flex-direction:column;align-items:center;}
+.eyebrow{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;}
+.logo{font-size:80px;font-weight:900;color:var(--white);line-height:1;letter-spacing:-3px;text-align:center;margin-bottom:6px;}
 .logo em{color:var(--yellow);font-style:normal;}
-.eyebrow{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--yellow);margin-bottom:4px;}
-.sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.65;margin-bottom:28px;}
+.sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.7;margin-bottom:36px;}
+
 .slabel{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#333;margin-bottom:8px;align-self:flex-start;width:100%;}
-.mode-row{display:flex;gap:9px;width:100%;margin-bottom:22px;}
+.mode-row{display:flex;gap:9px;width:100%;margin-bottom:24px;}
 .mbtn{flex:1;border:1.5px solid var(--mid);border-radius:10px;padding:12px 8px;background:transparent;cursor:pointer;text-align:center;transition:all .18s;}
 .mbtn.on{border-color:var(--yellow);background:var(--ydim);}
 .mbtn-t{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:2px;}
 .mbtn.on .mbtn-t{color:var(--yellow);}
 .mbtn-s{font-size:11px;color:#333;display:block;}
 .mbtn.on .mbtn-s{color:#6e6030;}
-.chips{display:flex;flex-wrap:wrap;gap:7px;width:100%;margin-bottom:22px;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;width:100%;margin-bottom:28px;}
 .chip{border:1.5px solid var(--mid);border-radius:20px;padding:6px 13px;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;transition:all .18s;}
 .chip.on{border-color:var(--yellow);background:var(--ydim);color:var(--yellow);}
-.scanbtn{width:100%;background:var(--yellow);border:none;border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:19px;font-weight:900;color:var(--black);letter-spacing:.1em;cursor:pointer;transition:all .15s;margin-bottom:10px;}
+
+.scanbtn{
+  width:100%;background:var(--yellow);border:none;border-radius:14px;
+  padding:22px 20px;display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:21px;font-weight:900;color:var(--black);letter-spacing:.08em;cursor:pointer;
+  transition:all .15s;margin-bottom:10px;
+}
 .scanbtn:active{transform:scale(.97);background:#fce050;}
-.upload-btn{width:100%;background:transparent;border:1.5px solid var(--mid);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;margin-bottom:10px;}
+.upload-btn{
+  width:100%;background:transparent;border:1.5px solid var(--mid);border-radius:12px;
+  padding:15px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;
+}
 .upload-btn:active{border-color:var(--yellow);color:var(--yellow);}
-.divider{width:100%;display:flex;align-items:center;gap:10px;margin:6px 0 10px;}
-.divider-line{flex:1;height:1px;background:var(--mid);}
-.divider-text{font-size:11px;color:#333;letter-spacing:.1em;text-transform:uppercase;}
-.castbtn{width:100%;background:transparent;border:1.5px solid rgba(245,210,71,.25);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;color:var(--yellow);cursor:pointer;transition:all .15s;margin-bottom:10px;}
-.castbtn:active{background:var(--ydim);}
-.receivebtn{width:100%;background:transparent;border:1.5px solid var(--mid);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;}
-.receivebtn:active{border-color:var(--green);color:var(--green);}
 
-/* CAMERA */
-#camera{background:#000;}
-#video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;background:#000;-webkit-transform:translateZ(0);transform:translateZ(0);}
+/* ══════════ CAMERA / LIVE VIEW ══════════ */
+#live{background:#000;position:relative;}
+
+/* video fills screen */
+#video{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  object-fit:cover;z-index:1;background:#000;
+  -webkit-transform:translateZ(0);transform:translateZ(0);
+}
 #cam-canvas{display:none;}
-.cam-top{position:fixed;top:0;left:0;right:0;padding:calc(var(--st) + 12px) 20px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.65),transparent);z-index:11;}
-.cam-bot{position:fixed;bottom:0;left:0;right:0;padding:20px 40px calc(var(--sb) + 36px);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);z-index:11;}
-.circ{width:44px;height:44px;border-radius:22px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;backdrop-filter:blur(8px);}
-.frame-box{position:fixed;top:50%;left:50%;width:82vw;height:calc(82vw * 1.35);transform:translate(-50%,-55%);pointer-events:none;z-index:10;}
-.fc{position:absolute;width:26px;height:26px;border-color:var(--yellow);border-style:solid;border-width:0;}
-.fc.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:3px 0 0 0;}
-.fc.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 3px 0 0;}
-.fc.bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 3px;}
-.fc.br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 3px 0;}
-.frame-hint{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.45);white-space:nowrap;letter-spacing:.08em;}
-.shutter{width:74px;height:74px;border-radius:37px;border:3px solid var(--yellow);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.shutter:active .si{transform:scale(.9);background:#fce050;}
-.si{width:58px;height:58px;border-radius:29px;background:var(--yellow);transition:all .1s;}
-.mode-pill{background:rgba(0,0,0,.5);border:1px solid rgba(245,210,71,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#f5d247;}
-#solving{position:fixed;inset:0;background:rgba(8,8,8,.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:22;backdrop-filter:blur(6px);}
-#solving.show{display:flex;}
-.solve-cheetah{font-size:52px;animation:bob .6s ease-in-out infinite alternate;}
-@keyframes bob{from{transform:scale(1)}to{transform:scale(1.15)}}
-.solve-label{font-size:17px;font-weight:700;color:var(--yellow);letter-spacing:.12em;}
-.solve-sub{font-size:12px;color:var(--muted);}
 
-/* RESULTS */
-#results{padding-top:calc(var(--st) + 0px);}
-.res-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #181818;flex-shrink:0;}
-.res-title{font-size:14px;font-weight:700;color:var(--yellow);}
-.res-acts{display:flex;gap:8px;}
-.rib{background:var(--grey);border:1px solid var(--mid);border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer;color:var(--muted);}
-.rib:active{border-color:var(--yellow);color:var(--yellow);}
-.tabs{display:flex;border-bottom:1px solid #181818;flex-shrink:0;}
-.tab{flex:1;padding:12px;text-align:center;font-size:13px;font-weight:600;color:#444;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
-.tab.on{color:var(--yellow);border-bottom-color:var(--yellow);}
-.tcontent{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.tpane{display:none;padding:16px;}
-.tpane.on{display:block;}
-.acard{background:var(--grey);border:1px solid #222;border-radius:10px;padding:15px;margin-bottom:11px;}
-.ahead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
-.anum{background:var(--yellow);color:var(--black);font-size:10px;font-weight:900;padding:3px 8px;border-radius:4px;letter-spacing:.06em;}
-.aconf{font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;}
+/* top bar */
+.live-top{
+  position:fixed;top:0;left:0;right:0;
+  padding:calc(var(--st) + 10px) 16px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(0,0,0,.75) 0%,transparent 100%);
+  z-index:20;
+}
+.ltop-close{width:40px;height:40px;border-radius:20px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;backdrop-filter:blur(10px);}
+.ltop-badge{background:rgba(0,0,0,.55);border:1px solid rgba(245,210,71,.3);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--yellow);backdrop-filter:blur(10px);display:flex;align-items:center;gap:6px;}
+.ltop-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);}
+.ltop-badge-dot.scanning{animation:blink .8s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.ltop-flip{width:40px;height:40px;border-radius:20px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;backdrop-filter:blur(10px);}
+
+/* scan frame */
+.frame{
+  position:fixed;top:50%;left:50%;
+  width:88vw;height:calc(88vw * 1.28);
+  transform:translate(-50%,-54%);
+  pointer-events:none;z-index:10;
+}
+.fc{position:absolute;width:24px;height:24px;border-color:rgba(245,210,71,.8);border-style:solid;border-width:0;}
+.fc.tl{top:0;left:0;border-top-width:2.5px;border-left-width:2.5px;border-radius:2px 0 0 0;}
+.fc.tr{top:0;right:0;border-top-width:2.5px;border-right-width:2.5px;border-radius:0 2px 0 0;}
+.fc.bl{bottom:0;left:0;border-bottom-width:2.5px;border-left-width:2.5px;border-radius:0 0 0 2px;}
+.fc.br{bottom:0;right:0;border-bottom-width:2.5px;border-right-width:2.5px;border-radius:0 0 2px 0;}
+
+/* shutter button */
+.live-bot{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:0 32px calc(var(--sb) + 32px);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);
+  z-index:20;
+  padding-top:20px;
+}
+.shutter{
+  width:74px;height:74px;border-radius:37px;
+  border:3px solid var(--yellow);background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.shutter:active .si{transform:scale(.88);background:#fce050;}
+.si{width:58px;height:58px;border-radius:29px;background:var(--yellow);transition:all .1s;}
+
+/* auto toggle */
+.auto-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+.auto-lbl{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.06em;text-transform:uppercase;}
+.tog-track{width:42px;height:24px;border-radius:12px;background:#222;position:relative;transition:background .2s;border:1px solid #333;}
+.tog-track.on{background:var(--yellow);border-color:var(--yellow);}
+.tog-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:8px;background:#555;transition:transform .2s,background .2s;}
+.tog-track.on .tog-thumb{transform:translateX(18px);background:var(--black);}
+.auto-sub{font-size:10px;color:rgba(255,255,255,.3);}
+
+/* flash capture effect */
+.cap-flash{position:fixed;inset:0;background:rgba(245,210,71,.15);pointer-events:none;z-index:15;opacity:0;transition:opacity .1s;}
+.cap-flash.show{opacity:1;}
+
+/* ══════════ ANSWERS DRAWER ══════════ */
+/* slides up from bottom over the camera */
+#drawer{
+  position:fixed;bottom:0;left:0;right:0;
+  height:55vh;
+  background:rgba(8,8,8,.96);
+  border-top:1px solid #222;
+  border-radius:20px 20px 0 0;
+  z-index:30;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .35s cubic-bezier(.32,.72,0,1);
+  backdrop-filter:blur(20px);
+}
+#drawer.open{transform:translateY(0);}
+
+.drawer-handle{
+  width:36px;height:4px;border-radius:2px;background:#333;
+  margin:12px auto 0;flex-shrink:0;cursor:pointer;
+}
+.drawer-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px 10px;flex-shrink:0;border-bottom:1px solid #1a1a1a;
+}
+.drawer-title{font-size:14px;font-weight:700;color:var(--yellow);}
+.drawer-close{background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;}
+.drawer-close:active{color:var(--yellow);}
+.drawer-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px;}
+.drawer-actions{padding:10px 16px calc(var(--sb) + 12px);border-top:1px solid #1a1a1a;display:flex;gap:8px;flex-shrink:0;}
+.dact{flex:1;background:transparent;border:1px solid var(--mid);border-radius:10px;padding:12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;}
+.dact:active{border-color:var(--yellow);color:var(--yellow);}
+.dact.hi{background:var(--yellow);color:var(--black);border-color:var(--yellow);}
+.dact.hi:active{background:#fce050;}
+
+/* answer cards in drawer */
+.acard{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:13px;margin-bottom:9px;}
+.ahead{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.anum{background:var(--yellow);color:var(--black);font-size:10px;font-weight:900;padding:2px 8px;border-radius:4px;}
+.aconf{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
 .ch{background:rgba(76,175,125,.15);color:var(--green);}
 .cm{background:rgba(245,210,71,.12);color:var(--yellow);}
 .cl{background:rgba(224,83,58,.12);color:var(--red);}
-.acopy{margin-left:auto;background:transparent;border:1px solid #282828;border-radius:6px;padding:4px 9px;font-size:11px;color:#444;cursor:pointer;}
+.acopy{margin-left:auto;background:transparent;border:1px solid #242424;border-radius:6px;padding:3px 8px;font-size:11px;color:#444;cursor:pointer;}
 .acopy:active{border-color:var(--yellow);color:var(--yellow);}
-.aq{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:9px;line-height:1.5;}
-.aans{background:#0f0f0f;border-radius:7px;padding:12px;border-left:2.5px solid var(--yellow);}
-.aansl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#2e2e2e;margin-bottom:5px;}
-.aanst{font-size:14px;color:var(--white);line-height:1.65;}
-.owrap{position:relative;border-radius:10px;overflow:hidden;background:#111;margin-bottom:14px;}
-#rimg{width:100%;display:block;}
-.pin{position:absolute;left:3%;background:rgba(245,210,71,.93);padding:3px 8px;border-radius:4px;max-width:60%;transform:translateY(-50%);}
-.pin p{font-size:9px;font-weight:700;color:#080808;line-height:1.3;}
-.savebtn{width:100%;background:var(--yellow);border:none;border-radius:10px;padding:16px;font-size:16px;font-weight:900;color:var(--black);letter-spacing:.08em;cursor:pointer;margin-bottom:10px;}
-.savebtn:active{background:#fce050;}
-.sharebtn{width:100%;background:transparent;border:1.5px solid var(--mid);border-radius:10px;padding:14px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:10px;}
-.sharebtn:active{border-color:var(--yellow);color:var(--yellow);}
+.aq{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:7px;line-height:1.5;}
+.aans{background:#0a0a0a;border-radius:6px;padding:10px;border-left:2.5px solid var(--yellow);}
+.aansl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#272727;margin-bottom:4px;}
+.aanst{font-size:14px;color:var(--white);line-height:1.6;}
 
-/* CAST SCREEN */
-#cast-screen{align-items:center;justify-content:center;padding:32px 28px;padding-top:calc(var(--st) + 32px);padding-bottom:calc(var(--sb) + 32px);background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(245,210,71,.06),transparent 60%),var(--black);}
-.cast-eyebrow{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;}
-.cast-title{font-size:26px;font-weight:900;color:var(--white);margin-bottom:6px;text-align:center;}
-.cast-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.65;margin-bottom:32px;}
-.cast-code-wrap{background:rgba(245,210,71,.06);border:1.5px solid rgba(245,210,71,.2);border-radius:16px;padding:24px;width:100%;max-width:320px;text-align:center;margin-bottom:10px;}
-.cast-code-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.cast-code-num{font-size:48px;font-weight:900;color:var(--yellow);letter-spacing:.15em;line-height:1;}
-.cast-code-hint{font-size:12px;color:#444;margin-top:8px;line-height:1.6;}
-.newcode-btn{background:transparent;border:1px solid var(--mid);border-radius:8px;padding:7px 16px;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:24px;}
-.newcode-btn:active{border-color:var(--yellow);color:var(--yellow);}
-.cast-sent{background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.25);border-radius:10px;padding:14px;width:100%;max-width:320px;text-align:center;margin-bottom:16px;display:none;}
-.cast-sent.show{display:block;}
-.cast-sent-t{font-size:13px;color:var(--green);font-weight:700;}
-.cast-sent-s{font-size:11px;color:#3a6e4a;margin-top:4px;}
-.cast-upload{width:100%;max-width:320px;background:var(--yellow);border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:900;color:var(--black);letter-spacing:.08em;cursor:pointer;margin-bottom:10px;}
-.cast-upload:active{background:#fce050;}
-.cast-back{background:transparent;border:1.5px solid var(--mid);border-radius:12px;padding:13px;width:100%;max-width:320px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;}
-.cast-back:active{border-color:var(--yellow);color:var(--yellow);}
+/* solving spinner inside drawer area */
+#solving{
+  position:fixed;inset:0;
+  background:rgba(8,8,8,.8);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  z-index:25;backdrop-filter:blur(6px);
+}
+#solving.show{display:flex;}
+.solve-leo{font-size:54px;animation:bob .55s ease-in-out infinite alternate;}
+@keyframes bob{from{transform:scale(1)}to{transform:scale(1.18)}}
+.solve-lbl{font-size:17px;font-weight:900;color:var(--yellow);letter-spacing:.12em;}
+.solve-s{font-size:12px;color:var(--muted);}
 
-/* RECEIVE SCREEN */
-#receive-screen{padding-top:calc(var(--st) + 0px);}
-.rec-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #181818;flex-shrink:0;}
-.rec-top-title{font-size:14px;font-weight:700;color:var(--white);}
-.rec-back{background:transparent;border:none;color:var(--muted);font-size:13px;cursor:pointer;}
-.rec-back:active{color:var(--yellow);}
-.rec-enter{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;}
-.rec-enter-icon{font-size:48px;margin-bottom:14px;}
-.rec-enter-title{font-size:22px;font-weight:900;margin-bottom:8px;}
-.rec-enter-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.65;}
-.code-input{width:100%;max-width:280px;background:#111;border:1.5px solid var(--mid);border-radius:12px;color:var(--yellow);font-size:32px;font-weight:900;text-align:center;padding:16px;outline:none;letter-spacing:.2em;text-transform:uppercase;font-family:-apple-system,sans-serif;transition:border-color .2s;margin-bottom:14px;}
-.code-input:focus{border-color:var(--yellow);}
-.code-input::placeholder{color:#252525;letter-spacing:.05em;}
-.join-btn{width:100%;max-width:280px;background:var(--yellow);border:none;border-radius:12px;padding:17px;font-size:18px;font-weight:900;color:var(--black);letter-spacing:.08em;cursor:pointer;}
-.join-btn:active{background:#fce050;}
-.join-btn:disabled{opacity:.3;pointer-events:none;}
-.rec-wait{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:14px;}
-.rec-wait.show{display:flex;}
-.rec-wait-code{font-size:40px;font-weight:900;color:var(--yellow);letter-spacing:.2em;}
-.rec-wait-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
-.rec-wait-dots{display:flex;gap:8px;}
-.rdot{width:10px;height:10px;border-radius:50%;background:var(--yellow);animation:rpulse 1.2s ease-in-out infinite;}
-.rdot:nth-child(2){animation-delay:.2s;}.rdot:nth-child(3){animation-delay:.4s;}
-@keyframes rpulse{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
-.rec-wait-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.7;}
-.rec-change{background:transparent;border:1px solid var(--mid);border-radius:10px;padding:10px 22px;color:var(--muted);font-size:13px;cursor:pointer;margin-top:6px;}
-.rec-change:active{border-color:var(--yellow);color:var(--yellow);}
-.rec-answers{flex:1;display:none;flex-direction:column;overflow:hidden;}
-.rec-answers.show{display:flex;}
-.rec-ans-top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #181818;flex-shrink:0;}
-.live-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:rpulse 1.5s ease-in-out infinite;}
-.rec-ans-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;}
-.rec-ans-foot{padding:12px 16px calc(var(--sb) + 12px);border-top:1px solid #181818;display:flex;gap:8px;flex-shrink:0;}
-.rec-foot-btn{flex:1;background:transparent;border:1px solid var(--mid);border-radius:10px;padding:12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;}
-.rec-foot-btn:active{border-color:var(--yellow);color:var(--yellow);}
-.rec-foot-btn.hi{background:var(--yellow);color:var(--black);border-color:var(--yellow);}
-.rec-foot-btn.hi:active{background:#fce050;}
-
-#toast{position:fixed;bottom:calc(var(--sb) + 22px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--grey);border:1px solid var(--yellow);border-radius:8px;padding:10px 20px;font-size:13px;color:var(--yellow);z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
+/* ══════════ TOAST ══════════ */
+#toast{
+  position:fixed;bottom:calc(var(--sb) + 24px);left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--grey);border:1px solid var(--yellow);border-radius:8px;
+  padding:10px 20px;font-size:13px;color:var(--yellow);
+  z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;
+}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<!-- HOME -->
+<!-- ══ HOME ══ -->
 <div class="screen active" id="home">
 <div class="home-inner">
   <p class="eyebrow">// AI Exam Solver</p>
   <h1 class="logo">CHEAT<em>AH</em></h1>
-  <p class="sub">Point your camera at any test.<br>Get every answer instantly.</p>
+  <p class="sub">Point your camera at any test or screen.<br>Answers appear automatically.</p>
+
   <p class="slabel">Mode</p>
   <div class="mode-row">
-    <button class="mbtn on" id="btn-test" onclick="setMode('test')"><span class="mbtn-t">⚡ Test Mode</span><span class="mbtn-s">Fast answers only</span></button>
-    <button class="mbtn" id="btn-study" onclick="setMode('study')"><span class="mbtn-t">📚 Study Mode</span><span class="mbtn-s">Full explanations</span></button>
+    <button class="mbtn on" id="btn-test" onclick="setMode('test')">
+      <span class="mbtn-t">⚡ Test Mode</span><span class="mbtn-s">Answers only</span>
+    </button>
+    <button class="mbtn" id="btn-study" onclick="setMode('study')">
+      <span class="mbtn-t">📚 Study Mode</span><span class="mbtn-s">Full explanations</span>
+    </button>
   </div>
+
   <p class="slabel">Subject</p>
   <div class="chips" id="chips"></div>
-  <button class="scanbtn" onclick="openCamera()"><span>📷</span><span>SCAN TEST</span></button>
-  <button class="upload-btn" onclick="document.getElementById('fup').click()"><span>🖼</span><span>Upload Photo</span></button>
+
+  <button class="scanbtn" onclick="openLive()">
+    <span>📷</span><span>START SCANNING</span>
+  </button>
+  <button class="upload-btn" onclick="document.getElementById('fup').click()" style="margin-top:10px">
+    <span>🖼</span><span>Upload a Photo Instead</span>
+  </button>
   <input type="file" id="fup" accept="image/*" style="display:none" onchange="handleUpload(event)"/>
-  <div class="divider"><div class="divider-line"></div><div class="divider-text">multi-device</div><div class="divider-line"></div></div>
-  <button class="castbtn" onclick="show('cast-screen')">📡 &nbsp;Cast Answers to Another Device</button>
-  <button class="receivebtn" onclick="show('receive-screen')">📲 &nbsp;Receive Answers on This Device</button>
 </div>
 </div>
 
-<!-- CAMERA -->
-<div class="screen" id="camera">
+<!-- ══ LIVE CAMERA ══ -->
+<div class="screen" id="live">
   <video id="video" autoplay playsinline webkit-playsinline muted></video>
   <canvas id="cam-canvas"></canvas>
-  <div class="cam-top">
-    <div class="circ" onclick="closeCamera()">✕</div>
-    <div class="mode-pill" id="mode-pill">⚡ Test Mode</div>
-    <div class="circ" id="flash-btn" onclick="toggleFlash()">🔦</div>
+
+  <div class="live-top">
+    <div class="ltop-close" onclick="closeLive()">✕</div>
+    <div class="ltop-badge" id="status-badge">
+      <div class="ltop-badge-dot" id="badge-dot"></div>
+      <span id="badge-text">Ready</span>
+    </div>
+    <div class="ltop-flip" onclick="flipCam()">🔄</div>
   </div>
-  <div class="frame-box">
-    <div class="fc tl"></div><div class="fc tr"></div><div class="fc bl"></div><div class="fc br"></div>
-    <p class="frame-hint">Align test paper within frame</p>
+
+  <div class="frame">
+    <div class="fc tl"></div><div class="fc tr"></div>
+    <div class="fc bl"></div><div class="fc br"></div>
   </div>
-  <div class="cam-bot">
-    <div class="circ" onclick="flipCamera()">🔄</div>
-    <button class="shutter" onclick="capture()" id="shutter"><div class="si"></div></button>
-    <div style="width:44px"></div>
+
+  <div class="live-bot">
+    <!-- auto toggle -->
+    <div class="auto-wrap" onclick="toggleAuto()">
+      <span class="auto-lbl">Auto</span>
+      <div class="tog-track" id="tog-track"><div class="tog-thumb"></div></div>
+      <span class="auto-sub" id="auto-sub">off</span>
+    </div>
+
+    <!-- shutter -->
+    <button class="shutter" id="shutter" onclick="captureNow()">
+      <div class="si"></div>
+    </button>
+
+    <!-- flash toggle -->
+    <div class="auto-wrap" onclick="toggleFlash()">
+      <span class="auto-lbl">Flash</span>
+      <div class="tog-track" id="flash-track"><div class="tog-thumb"></div></div>
+      <span class="auto-sub" id="flash-sub">off</span>
+    </div>
   </div>
-  <div id="solving"><div class="solve-cheetah">🐆</div><p class="solve-label">SOLVING…</p><p class="solve-sub">AI is reading your test</p></div>
+
+  <div class="cap-flash" id="cap-flash"></div>
 </div>
 
-<!-- RESULTS -->
-<div class="screen" id="results">
-  <div class="res-top">
-    <span class="res-title" id="res-title">🐆 Answers</span>
-    <div class="res-acts"><button class="rib" onclick="rescan()">📷 Rescan</button><button class="rib" onclick="goHome()">🏠</button></div>
+<!-- ══ ANSWERS DRAWER ══ -->
+<div id="drawer">
+  <div class="drawer-handle" onclick="toggleDrawer()"></div>
+  <div class="drawer-top">
+    <span class="drawer-title" id="drawer-title">🐆 Answers</span>
+    <button class="drawer-close" onclick="toggleDrawer()">⌄</button>
   </div>
-  <div class="tabs"><div class="tab on" onclick="switchTab('answers')">Answers</div><div class="tab" onclick="switchTab('overlay')">Overlay</div></div>
-  <div class="tcontent">
-    <div class="tpane on" id="pane-answers">
-      <div id="alist"></div>
-      <button class="sharebtn" onclick="shareAll()">⬆ Share All Answers</button>
-    </div>
-    <div class="tpane" id="pane-overlay">
-      <div class="owrap"><img id="rimg" src="" alt=""/><div id="pins"></div></div>
-      <button class="savebtn" onclick="saveImage()">⬇ Save Image to Photos</button>
-      <button class="sharebtn" onclick="shareAll()">⬆ Share Answers as Text</button>
-    </div>
+  <div class="drawer-scroll" id="drawer-scroll"></div>
+  <div class="drawer-actions">
+    <button class="dact" onclick="shareAnswers()">⬆ Share</button>
+    <button class="dact" onclick="scanAgain()">📷 Scan Again</button>
+    <button class="dact hi" onclick="copyAnswers()">⎘ Copy All</button>
   </div>
 </div>
 
-<!-- CAST SCREEN -->
-<div class="screen" id="cast-screen">
-  <p class="cast-eyebrow">// Cast Mode</p>
-  <h2 class="cast-title">📡 Cast to Device</h2>
-  <p class="cast-sub">Show this code on the receiving phone.<br>Scan a test and answers appear there live.</p>
-  <div class="cast-code-wrap">
-    <p class="cast-code-label">Room Code</p>
-    <div class="cast-code-num" id="cast-code-num">———</div>
-    <p class="cast-code-hint">Enter this on the receiving device</p>
-  </div>
-  <button class="newcode-btn" onclick="newCastCode()">↻ New Code</button>
-  <div class="cast-sent" id="cast-sent"><p class="cast-sent-t">✅ Answers sent to device!</p><p class="cast-sent-s">Check the receiving phone now</p></div>
-  <button class="cast-upload" onclick="document.getElementById('fup2').click()">📷 Scan / Upload Test Now</button>
-  <input type="file" id="fup2" accept="image/*" style="display:none" onchange="handleCastUpload(event)"/>
-  <div style="height:10px"></div>
-  <button class="cast-back" onclick="goHome()">← Back to Home</button>
-</div>
-
-<!-- RECEIVE SCREEN -->
-<div class="screen" id="receive-screen">
-  <div class="rec-top">
-    <button class="rec-back" onclick="leaveReceive()">← Back</button>
-    <span class="rec-top-title">📲 Receive Answers</span>
-    <div style="width:50px"></div>
-  </div>
-  <div class="rec-enter" id="rec-enter">
-    <div class="rec-enter-icon">📡</div>
-    <h2 class="rec-enter-title">Enter Room Code</h2>
-    <p class="rec-enter-sub">Open Cheatah on the computer, tap "Cast to Device" and enter the code shown.</p>
-    <input class="code-input" id="code-input" maxlength="6" placeholder="ABC123"
-      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');document.getElementById('join-btn').disabled=this.value.length<6;"
-      onkeydown="if(event.key==='Enter')joinRoom()"/>
-    <button class="join-btn" id="join-btn" onclick="joinRoom()" disabled>📡 Connect &amp; Wait</button>
-  </div>
-  <div class="rec-wait" id="rec-wait">
-    <p class="rec-wait-label">Waiting for answers</p>
-    <div class="rec-wait-code" id="rec-wait-code">——</div>
-    <div class="rec-wait-dots"><div class="rdot"></div><div class="rdot"></div><div class="rdot"></div></div>
-    <p class="rec-wait-sub">Keep this open.<br>Answers appear automatically.</p>
-    <button class="rec-change" onclick="changeCode()">← Change Code</button>
-  </div>
-  <div class="rec-answers" id="rec-answers">
-    <div class="rec-ans-top">
-      <span class="res-title" id="rec-ans-title">🐆 Answers</span>
-      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    </div>
-    <div class="rec-ans-scroll" id="rec-ans-scroll"></div>
-    <div class="rec-ans-foot">
-      <button class="rec-foot-btn" onclick="shareRecAnswers()">⬆ Share</button>
-      <button class="rec-foot-btn" onclick="changeCode()">🔄 New</button>
-      <button class="rec-foot-btn hi" onclick="copyAllAnswers()">⎘ Copy All</button>
-    </div>
-  </div>
+<!-- ══ SOLVING ══ -->
+<div id="solving">
+  <div class="solve-leo">🐆</div>
+  <p class="solve-lbl">SOLVING…</p>
+  <p class="solve-s">Reading your test</p>
 </div>
 
 <div id="toast"></div>
 
 <script>
-let mode='test',subject='general',stream=null,facing='environment',flashOn=false;
-let answers=[],imgDataUrl=null,castCode=null,pollTimer=null,lastStamp=0,recAnswers=[];
+// ── STATE ──────────────────────────────────────────────────────────
+let mode     = 'test';
+let subject  = 'general';
+let stream   = null;
+let facing   = 'environment';
+let flashOn  = false;
+let autoOn   = false;
+let autoTimer= null;
+let solving  = false;
+let answers  = [];
 
-const SUBJECTS=[{v:'general',l:'🧠 General'},{v:'math',l:'📐 Math'},{v:'bio',l:'🧬 AP Bio'},{v:'chem',l:'⚗️ Chem'},{v:'history',l:'📜 History'},{v:'english',l:'📖 English'},{v:'physics',l:'🔭 Physics'},{v:'sat',l:'✏️ SAT/ACT'}];
-const PROMPTS={general:'',math:'Answer like a perfect math student. Show concise steps.',bio:'Answer like a perfect AP Biology student. Use precise scientific terminology.',chem:'Answer like a perfect chemistry student. Show formulas and balance equations.',history:'Answer like a perfect history student. Reference key dates, people, and causes.',english:'Answer like a perfect English student. Quote text evidence where relevant.',physics:'Answer like a perfect physics student. Show formulas, units, and numeric steps.',sat:'Answer in SAT/ACT format. For multiple choice, state the letter and a one-line reason.'};
+const SUBJECTS=[
+  {v:'general',l:'🧠 General'},{v:'math',l:'📐 Math'},{v:'bio',l:'🧬 AP Bio'},
+  {v:'chem',l:'⚗️ Chem'},{v:'history',l:'📜 History'},{v:'english',l:'📖 English'},
+  {v:'physics',l:'🔭 Physics'},{v:'sat',l:'✏️ SAT/ACT'}
+];
+const PROMPTS={
+  general:'',
+  math:'Answer like a perfect math student. Show concise steps.',
+  bio:'Answer like a perfect AP Biology student. Use precise scientific terminology.',
+  chem:'Answer like a perfect chemistry student. Show formulas and balance equations.',
+  history:'Answer like a perfect history student. Reference key dates, people, and causes.',
+  english:'Answer like a perfect English student. Quote text evidence where relevant.',
+  physics:'Answer like a perfect physics student. Show formulas, units, and numeric steps.',
+  sat:'Answer in SAT/ACT format. For multiple choice, state the letter and a one-line reason.'
+};
 
+// ── INIT ───────────────────────────────────────────────────────────
 (function(){
   const wrap=document.getElementById('chips');
   SUBJECTS.forEach(s=>{
     const b=document.createElement('button');
-    b.className='chip'+(s.v==='general'?' on':'');b.textContent=s.l;
+    b.className='chip'+(s.v==='general'?' on':'');
+    b.textContent=s.l;
     b.onclick=()=>{subject=s.v;wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));b.classList.add('on');};
     wrap.appendChild(b);
   });
-  newCastCode();
 })();
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function toast(msg,dur=2600){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+// ── UI ─────────────────────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function toast(msg,dur=2400){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function setMode(m){mode=m;document.getElementById('btn-test').classList.toggle('on',m==='test');document.getElementById('btn-study').classList.toggle('on',m==='study');document.getElementById('mode-pill').textContent=m==='test'?'⚡ Test Mode':'📚 Study Mode';}
-function goHome(){answers=[];imgDataUrl=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}show('home');}
-function switchTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['answers','overlay'][i]===n));document.getElementById('pane-answers').classList.toggle('on',n==='answers');document.getElementById('pane-overlay').classList.toggle('on',n==='overlay');}
+function setMode(m){
+  mode=m;
+  document.getElementById('btn-test').classList.toggle('on',m==='test');
+  document.getElementById('btn-study').classList.toggle('on',m==='study');
+}
+function setStatus(text,active=false){
+  document.getElementById('badge-text').textContent=text;
+  document.getElementById('badge-dot').classList.toggle('scanning',active);
+}
 
-// CAMERA
-async function openCamera(){show('camera');await startStream();}
+// ── CAMERA ─────────────────────────────────────────────────────────
+async function openLive(){
+  show('live');
+  await startStream();
+}
 async function startStream(){
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
   try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:false});
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
     const v=document.getElementById('video');
-    v.srcObject=stream;v.muted=true;
-    v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
-    await new Promise(r=>setTimeout(r,150));
-    try{await v.play();}catch(e){console.warn(e);}
+    v.srcObject=stream;
+    v.muted=true;
+    v.setAttribute('autoplay','');
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    await new Promise(r=>setTimeout(r,200));
+    try{await v.play();}catch(e){console.warn('play:',e);}
+    setStatus('Ready');
   }catch(e){
-    toast(e.name==='NotAllowedError'?'⚠ Camera blocked — check Settings > Safari > Camera':'⚠ '+e.message);
+    toast(e.name==='NotAllowedError'
+      ?'⚠ Camera blocked — go to Settings → Safari → Camera → Allow'
+      :'⚠ Camera error: '+e.message);
     show('home');
   }
 }
-function closeCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}show('home');}
-async function flipCamera(){facing=facing==='environment'?'user':'environment';await startStream();}
-function toggleFlash(){flashOn=!flashOn;document.getElementById('flash-btn').textContent=flashOn?'💡':'🔦';if(stream){const t=stream.getVideoTracks()[0];if(t?.getCapabilities?.()?.torch)t.applyConstraints({advanced:[{torch:flashOn}]}).catch(()=>{});}}
-async function capture(){
-  const v=document.getElementById('video'),c=document.getElementById('cam-canvas');
-  c.width=v.videoWidth||1280;c.height=v.videoHeight||720;
-  c.getContext('2d').drawImage(v,0,0);
-  imgDataUrl=c.toDataURL('image/jpeg',0.85);
-  await solve(imgDataUrl,false);
+function closeLive(){
+  stopAuto();
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  document.getElementById('drawer').classList.remove('open');
+  show('home');
 }
-function handleUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{imgDataUrl=ev.target.result;show('camera');await solve(imgDataUrl,false);};r.readAsDataURL(f);}
-function handleCastUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{imgDataUrl=ev.target.result;await solve(imgDataUrl,true);};r.readAsDataURL(f);}
-function rescan(){answers=[];imgDataUrl=null;show('camera');startStream();}
+async function flipCam(){
+  facing=facing==='environment'?'user':'environment';
+  await startStream();
+}
+function toggleFlash(){
+  flashOn=!flashOn;
+  document.getElementById('flash-track').classList.toggle('on',flashOn);
+  document.getElementById('flash-sub').textContent=flashOn?'on':'off';
+  if(stream){
+    const t=stream.getVideoTracks()[0];
+    if(t?.getCapabilities?.()?.torch)
+      t.applyConstraints({advanced:[{torch:flashOn}]}).catch(()=>{});
+  }
+}
 
-// SOLVE
-async function solve(dataUrl,castMode=false){
+// ── AUTO SCAN ──────────────────────────────────────────────────────
+function toggleAuto(){
+  autoOn=!autoOn;
+  document.getElementById('tog-track').classList.toggle('on',autoOn);
+  document.getElementById('auto-sub').textContent=autoOn?'8s':'off';
+  if(autoOn){setStatus('Auto-scanning',true);scheduleNext();}
+  else{stopAuto();setStatus('Ready',false);}
+}
+function scheduleNext(){
+  stopAuto();
+  autoTimer=setTimeout(async()=>{
+    if(autoOn&&!solving){
+      await captureNow();
+      if(autoOn)scheduleNext();
+    } else if(autoOn){
+      scheduleNext();
+    }
+  },8000);
+}
+function stopAuto(){
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+}
+
+// ── CAPTURE ────────────────────────────────────────────────────────
+async function captureNow(){
+  if(solving)return;
+  const v=document.getElementById('video');
+  if(!v.videoWidth){toast('⚠ Camera not ready yet');return;}
+
+  // flash effect
+  const fl=document.getElementById('cap-flash');
+  fl.classList.add('show');setTimeout(()=>fl.classList.remove('show'),180);
+
+  const c=document.getElementById('cam-canvas');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const dataUrl=c.toDataURL('image/jpeg',0.88);
+  await solve(dataUrl);
+}
+
+function handleUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    show('live');
+    // give the live screen a moment to show
+    await new Promise(r=>setTimeout(r,100));
+    await solve(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function scanAgain(){
+  toggleDrawer();
+  setTimeout(()=>setStatus(autoOn?'Auto-scanning':'Ready',autoOn),400);
+}
+
+// ── SOLVE ──────────────────────────────────────────────────────────
+async function solve(dataUrl){
+  solving=true;
+  setStatus('Solving…',true);
   document.getElementById('solving').classList.add('show');
-  if(!castMode)document.getElementById('shutter').disabled=true;
-  const modeNote=mode==='study'?'For each question provide the answer, a full step-by-step explanation, and confidence %.':'For each question give ONLY the direct answer — no explanation. Include confidence %.';
-  const system=`You are Cheatah, an AI that reads test/exam images and answers every question.\n${PROMPTS[subject]||''}\nFormat strictly as:\nQ1. [question text]\nAnswer: [answer]\nConfidence: [0-100]%\nRepeat for every question visible. ${modeNote}`;
+  document.getElementById('shutter').disabled=true;
+
+  const modeNote=mode==='study'
+    ?'For each question provide the answer, a full step-by-step explanation, and confidence %.'
+    :'For each question give ONLY the direct answer — no explanation. Include confidence %.';
+  const system=`You are Cheatah, an AI that reads test/exam images and answers every question.
+${PROMPTS[subject]||''}
+Format strictly as:
+Q1. [question text]
+Answer: [answer]
+Confidence: [0-100]%
+Repeat for every question visible. ${modeNote}`;
+
   try{
-    const base64=dataUrl.split(',')[1],mtype=dataUrl.split(';')[0].split(':')[1];
-    const res=await fetch('/api/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:base64,mimeType:mtype,subject,mode})});
+    const base64=dataUrl.split(',')[1];
+    const mtype=dataUrl.split(';')[0].split(':')[1];
+    const res=await fetch('/api/solve',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:base64,mimeType:mtype,subject,mode})
+    });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
     answers=parseAnswers(data.text||'');
-    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
-    if(castCode)await pushAnswers(answers);
-    if(castMode){document.getElementById('cast-sent').classList.add('show');}
-    else{renderResults();show('results');}
-  }catch(e){toast('⚠ '+(e.message||'Something went wrong'));}
-  finally{document.getElementById('solving').classList.remove('show');if(!castMode)document.getElementById('shutter').disabled=false;}
+    renderDrawer();
+    document.getElementById('drawer').classList.add('open');
+    setStatus(`${answers.length} answers found`,false);
+  }catch(e){
+    toast('⚠ '+(e.message||'Something went wrong'));
+    setStatus('Error — tap to retry',false);
+  }finally{
+    solving=false;
+    document.getElementById('solving').classList.remove('show');
+    document.getElementById('shutter').disabled=false;
+  }
 }
 
+// ── PARSE ──────────────────────────────────────────────────────────
 function parseAnswers(text){
-  const lines=text.split('\n').filter(l=>l.trim()),out=[];let cur=null;
+  const lines=text.split('\n').filter(l=>l.trim());
+  const out=[];let cur=null;
   for(const line of lines){
     const qm=line.match(/^(?:Q(?:uestion)?\s*(\d+)[.:)]|(\d+)[.)]\s)/i);
-    if(qm){if(cur)out.push(cur);cur={num:parseInt(qm[1]||qm[2]),question:line.replace(/^(?:Q(?:uestion)?\s*\d+[.:)]|\d+[.)]\s)/i,'').trim(),answer:'',confidence:null};}
-    else if(line.match(/^(?:Answer|A)[.:)]/i)&&cur){cur.answer=line.replace(/^(?:Answer|A)[.:)]\s*/i,'').trim();}
-    else if(line.match(/confidence[:\s]+(\d+)%/i)&&cur){cur.confidence=parseInt(line.match(/(\d+)%/)[1]);}
-    else if(cur){if(!cur.answer)cur.answer=line.trim();else cur.answer+=' '+line.trim();}
+    if(qm){
+      if(cur)out.push(cur);
+      cur={num:parseInt(qm[1]||qm[2]),
+           question:line.replace(/^(?:Q(?:uestion)?\s*\d+[.:)]|\d+[.)]\s)/i,'').trim(),
+           answer:'',confidence:null};
+    }else if(line.match(/^(?:Answer|A)[.:)]/i)&&cur){
+      cur.answer=line.replace(/^(?:Answer|A)[.:)]\s*/i,'').trim();
+    }else if(line.match(/confidence[:\s]+(\d+)%/i)&&cur){
+      cur.confidence=parseInt(line.match(/(\d+)%/)[1]);
+    }else if(cur){
+      if(!cur.answer)cur.answer=line.trim();
+      else cur.answer+=' '+line.trim();
+    }
   }
   if(cur)out.push(cur);
   return out.length?out:[{num:1,question:'',answer:text,confidence:null}];
 }
 
-function renderResults(){
-  document.getElementById('res-title').textContent=`🐆 ${answers.length} answer${answers.length!==1?'s':''} found`;
-  document.getElementById('alist').innerHTML=answers.map((a,i)=>{
-    let conf='';if(a.confidence!==null){const cls=a.confidence>=80?'ch':a.confidence>=60?'cm':'cl';conf=`<span class="aconf ${cls}">${a.confidence}% sure</span>`;}
-    return `<div class="acard"><div class="ahead"><span class="anum">Q${a.num}</span>${conf}<button class="acopy" onclick="copyOne(${i},this)">⎘ Copy</button></div>${a.question?`<p class="aq">${esc(a.question)}</p>`:''}<div class="aans"><p class="aansl">Answer</p><p class="aanst">${esc(a.answer)}</p></div></div>`;
-  }).join('');
-  document.getElementById('rimg').src=imgDataUrl;
-  document.getElementById('pins').innerHTML=answers.map((a,i)=>{
-    const top=6+(i/Math.max(answers.length,1))*82;
-    return `<div class="pin" style="top:${top}%"><p>${esc(`Q${a.num}: ${a.answer.slice(0,52)}${a.answer.length>52?'…':''}`)}</p></div>`;
-  }).join('');
-}
+// ── RENDER DRAWER ──────────────────────────────────────────────────
+function renderDrawer(){
+  document.getElementById('drawer-title').textContent=
+    `🐆 ${answers.length} answer${answers.length!==1?'s':''} found`;
 
-function copyOne(i,btn){const a=answers[i];navigator.clipboard?.writeText(`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`).then(()=>{btn.textContent='✓ Copied';setTimeout(()=>btn.textContent='⎘ Copy',1500);});}
-function shareAll(){const src=answers;const text='🐆 Cheatah Answers\n\n'+src.map(a=>`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`).join('\n\n');if(navigator.share)navigator.share({title:'Cheatah Answers',text}).catch(()=>{});else navigator.clipboard?.writeText(text).then(()=>toast('Copied!'));}
-function shareRecAnswers(){const text='🐆 Cheatah Answers\n\n'+recAnswers.map(a=>`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`).join('\n\n');if(navigator.share)navigator.share({title:'Cheatah Answers',text}).catch(()=>{});else navigator.clipboard?.writeText(text).then(()=>toast('Copied!'));}
-function copyAllAnswers(){navigator.clipboard?.writeText(recAnswers.map(a=>`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`).join('\n\n')).then(()=>toast('✓ Copied!'));}
-function saveImage(){
-  const img=new Image();
-  img.onload=()=>{
-    const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
-    const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-    const scale=img.width/Math.max(document.getElementById('rimg').clientWidth,1);
-    ctx.font=`bold ${Math.round(13*scale)}px -apple-system,sans-serif`;
-    answers.forEach((a,i)=>{
-      const y=img.height*(0.06+(i/Math.max(answers.length,1))*0.82),x=img.width*0.03;
-      const label=`Q${a.num}: ${a.answer.slice(0,52)}${a.answer.length>52?'…':''}`;
-      const pad=8*scale,tw=ctx.measureText(label).width,bh=22*scale;
-      ctx.fillStyle='rgba(245,210,71,0.93)';ctx.beginPath();
-      if(ctx.roundRect)ctx.roundRect(x,y-bh/2,tw+pad*2,bh,4*scale);else ctx.rect(x,y-bh/2,tw+pad*2,bh);
-      ctx.fill();ctx.fillStyle='#080808';ctx.fillText(label,x+pad,y+5*scale);
-    });
-    const link=document.createElement('a');link.download=`cheatah-${Date.now()}.jpg`;link.href=canvas.toDataURL('image/jpeg',0.9);link.click();toast('✓ Saved!');
-  };img.src=imgDataUrl;
-}
-
-// CAST
-function newCastCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';castCode=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');document.getElementById('cast-code-num').textContent=castCode.slice(0,3)+'-'+castCode.slice(3);document.getElementById('cast-sent').classList.remove('show');}
-async function pushAnswers(ans){if(!castCode)return;try{await fetch('/api/answers?code='+castCode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:ans,subject,mode,timestamp:Date.now()})});}catch(e){}}
-
-// RECEIVE
-function joinRoom(){
-  const code=document.getElementById('code-input').value.trim().toUpperCase();if(code.length<6)return;
-  document.getElementById('rec-wait-code').textContent=code.slice(0,3)+'-'+code.slice(3);
-  document.getElementById('rec-enter').style.display='none';
-  document.getElementById('rec-wait').classList.add('show');
-  startPolling(code);
-}
-function changeCode(){
-  stopPolling();recAnswers=[];lastStamp=0;
-  document.getElementById('code-input').value='';
-  document.getElementById('join-btn').disabled=true;
-  document.getElementById('rec-enter').style.display='flex';
-  document.getElementById('rec-wait').classList.remove('show');
-  document.getElementById('rec-answers').classList.remove('show');
-}
-function leaveReceive(){stopPolling();changeCode();show('home');}
-function startPolling(code){stopPolling();poll(code);pollTimer=setInterval(()=>poll(code),2000);}
-function stopPolling(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
-async function poll(code){
-  try{
-    const res=await fetch('/api/answers?code='+code);const data=await res.json();
-    if(data.ready&&data.timestamp!==lastStamp){
-      lastStamp=data.timestamp;recAnswers=data.answers||[];
-      document.getElementById('rec-ans-title').textContent=`🐆 ${recAnswers.length} answer${recAnswers.length!==1?'s':''} found`;
-      document.getElementById('rec-ans-scroll').innerHTML=recAnswers.map((a,i)=>{
-        let conf='';if(a.confidence!==null){const cls=a.confidence>=80?'ch':a.confidence>=60?'cm':'cl';conf=`<span class="aconf ${cls}">${a.confidence}% sure</span>`;}
-        return `<div class="acard" style="animation-delay:${i*.04}s"><div class="ahead"><span class="anum">Q${a.num}</span>${conf}</div>${a.question?`<p class="aq">${esc(a.question)}</p>`:''}<div class="aans"><p class="aansl">Answer</p><p class="aanst">${esc(a.answer)}</p></div></div>`;
-      }).join('');
-      document.getElementById('rec-wait').classList.remove('show');
-      document.getElementById('rec-answers').classList.add('show');
+  document.getElementById('drawer-scroll').innerHTML=answers.map((a,i)=>{
+    let conf='';
+    if(a.confidence!==null){
+      const cls=a.confidence>=80?'ch':a.confidence>=60?'cm':'cl';
+      conf=`<span class="aconf ${cls}">${a.confidence}%</span>`;
     }
-  }catch(e){}
+    return `<div class="acard">
+      <div class="ahead">
+        <span class="anum">Q${a.num}</span>${conf}
+        <button class="acopy" onclick="copyOne(${i},this)">⎘</button>
+      </div>
+      ${a.question?`<p class="aq">${esc(a.question)}</p>`:''}
+      <div class="aans">
+        <p class="aansl">Answer</p>
+        <p class="aanst">${esc(a.answer)}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DRAWER ─────────────────────────────────────────────────────────
+function toggleDrawer(){
+  document.getElementById('drawer').classList.toggle('open');
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────
+function copyOne(i,btn){
+  const a=answers[i];
+  navigator.clipboard?.writeText(`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`)
+    .then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='⎘',1400);});
+}
+function copyAnswers(){
+  const text=answers.map(a=>`Q${a.num}: ${a.question}\nAnswer: ${a.answer}`).join('\n\n');
+  navigator.clipboard?.writeText(text).then(()=>toast('✓ All answers copied!'));
+}
+function shareAnswers(){
+  const text='🐆 Cheatah Answers\n\n'+
+    answers.map(a=>`Q${a.num}: ${a.question}\nAnswer: ${a.answer}${a.confidence?` (${a.confidence}% sure)`:''}`).join('\n\n');
+  if(navigator.share)navigator.share({title:'Cheatah Answers',text}).catch(()=>{});
+  else navigator.clipboard?.writeText(text).then(()=>toast('Copied!'));
 }
 </script>
 </body>
