@@ -13,23 +13,21 @@ export default async function handler(req, res) {
 
   const { imageBase64, mimeType, subject, mode } = req.body || {};
 
-  // Log what we received for debugging
   console.log('solve called:', {
     hasImage: !!imageBase64,
     imageLen: imageBase64?.length,
     mimeType,
     subject,
     mode,
-    hasKey: !!process.env.OPENAI_API_KEY,
-    keyPrefix: process.env.OPENAI_API_KEY?.slice(0,8),
+    hasKey: !!process.env.GEMINI_API_KEY,
   });
 
   if (!imageBase64 || !mimeType) {
-    return res.status(400).json({ error: 'Missing image data. imageBase64: ' + !!imageBase64 + ', mimeType: ' + !!mimeType });
+    return res.status(400).json({ error: 'Missing image data' });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY not set in Vercel environment variables' });
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY not set in Vercel environment variables' });
   }
 
   const PROMPTS = {
@@ -47,12 +45,12 @@ export default async function handler(req, res) {
     ? 'For each question provide the correct answer, a full explanation, and confidence %.'
     : 'For each question state the correct answer only. Include confidence %.';
 
-  const system = `You are Cheatah, an AI that reads test and quiz images and answers every question.
+  const prompt = `You are Cheatah, an AI that reads test and quiz images and answers every question.
 ${PROMPTS[subject] || ''}
 
-IMPORTANT: Many tests are multiple choice. If you see lettered or radio button options (A/B/C/D), identify the correct one.
+IMPORTANT: Many tests are multiple choice with radio buttons or letters (A/B/C/D). Identify the correct option.
 
-Format EXACTLY like this for every question:
+Format EXACTLY like this for every question — no deviations:
 
 Q1. [full question text]
 Answer: [the correct answer]
@@ -62,45 +60,52 @@ Q2. [full question text]
 Answer: [the correct answer]
 Confidence: [0-100]%
 
-${modeNote}`;
+Repeat for every question visible in the image. ${modeNote}`;
 
   try {
-    console.log('Calling OpenAI API...');
+    console.log('Calling Gemini API...');
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        max_tokens: 2000,
-        messages: [
-          { role: 'system', content: system },
-          {
-            role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}`, detail: 'high' } },
-              { type: 'text', text: 'Read this test image carefully and answer every question using the exact format specified.' }
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inline_data: {
+                  mime_type: mimeType,
+                  data: imageBase64
+                }
+              }
             ]
+          }],
+          generationConfig: {
+            maxOutputTokens: 2000,
+            temperature: 0.1,
           }
-        ]
-      })
-    });
+        })
+      }
+    );
 
-    console.log('OpenAI status:', response.status);
+    console.log('Gemini status:', response.status);
 
     const data = await response.json();
-    console.log('OpenAI response keys:', Object.keys(data));
+    console.log('Gemini response keys:', Object.keys(data));
 
     if (data.error) {
-      console.error('OpenAI error:', data.error);
+      console.error('Gemini error:', data.error);
       return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
     }
 
-    const text = data.choices?.[0]?.message?.content || '';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     console.log('Got text, length:', text.length);
+
+    if (!text) {
+      return res.status(500).json({ error: 'Gemini returned no text. Response: ' + JSON.stringify(data).slice(0, 200) });
+    }
 
     return res.status(200).json({ text });
 
