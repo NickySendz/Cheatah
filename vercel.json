@@ -1,5 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/api/solve", "destination": "/api/solve" }
-  ]
+  "version": 2
 }
