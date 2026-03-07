@@ -404,7 +404,10 @@ function haptic(style='medium'){
 
 // ── PWA ────────────────────────────────────────────────────────────
 function dismissPwa(){
-  document.getElementById('pwa-banner').classList.remove('show');
+  const banner=document.getElementById('pwa-banner');
+  banner.style.transition='transform .4s cubic-bezier(.32,.72,0,1)';
+  banner.style.transform='translateY(120%)';
+  setTimeout(()=>{banner.classList.remove('show');banner.style.transform='';},420);
   localStorage.setItem('pwa_dismissed','1');
 }
 
