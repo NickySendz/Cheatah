@@ -1,26 +1,9 @@
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { imageBase64, mimeType, subject, mode } = req.body || {};
-
-  console.log('solve called:', {
-    hasImage: !!imageBase64,
-    imageLen: imageBase64?.length,
-    mimeType,
-    subject,
-    mode,
-    hasKey: !!process.env.GEMINI_API_KEY,
-  });
 
   if (!imageBase64 || !mimeType) {
     return res.status(400).json({ error: 'Missing image data' });
@@ -50,7 +33,7 @@ ${PROMPTS[subject] || ''}
 
 IMPORTANT: Many tests are multiple choice with radio buttons or letters (A/B/C/D). Identify the correct option.
 
-Format EXACTLY like this for every question — no deviations:
+Format EXACTLY like this for every question:
 
 Q1. [full question text]
 Answer: [the correct answer]
@@ -63,10 +46,8 @@ Confidence: [0-100]%
 Repeat for every question visible in the image. ${modeNote}`;
 
   try {
-    console.log('Calling Gemini API...');
-
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,43 +55,37 @@ Repeat for every question visible in the image. ${modeNote}`;
           contents: [{
             parts: [
               { text: prompt },
-              {
-                inline_data: {
-                  mime_type: mimeType,
-                  data: imageBase64
-                }
-              }
+              { inline_data: { mime_type: mimeType, data: imageBase64 } }
             ]
           }],
-          generationConfig: {
-            maxOutputTokens: 2000,
-            temperature: 0.1,
-          }
+          generationConfig: { maxOutputTokens: 2000, temperature: 0.1 }
         })
       }
     );
 
-    console.log('Gemini status:', response.status);
-
     const data = await response.json();
-    console.log('Gemini response keys:', Object.keys(data));
 
     if (data.error) {
-      console.error('Gemini error:', data.error);
       return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('Got text, length:', text.length);
 
     if (!text) {
-      return res.status(500).json({ error: 'Gemini returned no text. Response: ' + JSON.stringify(data).slice(0, 200) });
+      return res.status(500).json({ error: 'No response from Gemini. Raw: ' + JSON.stringify(data).slice(0, 300) });
     }
 
     return res.status(200).json({ text });
 
   } catch (err) {
-    console.error('Caught error:', err);
     return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 }
+
+module.exports.config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
